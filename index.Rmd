@@ -1,0 +1,19 @@
+---
+title: "Tagged NHP model runs"
+date: "Last updated: `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+format: html
+params:
+  tagged_runs: NULL
+---
+
+Each row of this table represents a model run that the Data Science team has tagged with the metadata key 'run_stage' (initial, intermediate or final, with a suffix denoting the non-demographic variant).
+
+Note that this table is not intended as a tool for data governance.
+Schemes and model-relationship managers must keep their own records.
+
+```{r}
+#| label: create-reactable
+#| echo: false
+source("R/table.R")
+create_reactable(dat = params$tagged_runs)
+```
