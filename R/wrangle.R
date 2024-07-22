@@ -2,26 +2,36 @@
 #' Fetch all Runs with 'run_stage' Metadata
 #' @param result_sets A data.frame. A row per run, with columns for each item of
 #'     metadata. Probably returned by \link[su.azure]{get_nhp_result_sets}.
+#' @param trust_lookup_file Character. A path to a file containing a lookup from
+#'    ODS codes to trust names to hospital sites.
 #' @return A data.frame.
 #' @noRd
-prepare_run_stage_runs <- function(result_sets) {
+prepare_run_stage_runs <- function(
+    result_sets,
+    trust_lookup_file = "data/nhp-trust-code-lookup.csv"
+) {
 
   run_stage_results <- result_sets |>
     dplyr::filter(!is.na(run_stage)) |>
-    dplyr::select(dataset, scenario, app_version, run_stage, file) |>
-    dplyr::arrange(dataset, run_stage)
+    dplyr::select(dataset, scenario, app_version, run_stage, file)
 
   # Generate encrypted bit of the outputs app URL
   run_stage_results$url_file_encrypted <- run_stage_results$file |>
     purrr::map(encrypt_filename) |>
     unlist()
 
-  # Look up trust name from ODS code
-  run_stage_results$trust_name <- run_stage_results$dataset |>
-    purrr::map(lookup_ods_org_code_name) |>
-    unlist()
+  trust_lookup <- readr::read_csv(
+    trust_lookup_file,
+    col_select = c("Name of Hospital site", "Trust ODS Code"),
+    show_col_types = FALSE
+  ) |>
+    dplyr::select(
+      dataset = "Trust ODS Code",
+      hospital_site = "Name of Hospital site"
+    )
 
   run_stage_results |>
+    dplyr::left_join(trust_lookup, by = "dataset") |>
     dplyr::mutate(
       url_app_version = stringr::str_replace(app_version, "\\.", "-"),
       url_stub = glue::glue("https://connect.strategyunitwm.nhs.uk/nhp/{url_app_version}/outputs/?"),
@@ -29,27 +39,28 @@ prepare_run_stage_runs <- function(result_sets) {
     ) |>
     dplyr::select(
       dataset,
-      trust_name,
+      hospital_site,
       tidyselect::everything(),
       -file,
       -tidyselect::starts_with("url_")
     ) |>
     dplyr::mutate(
       dplyr::across(
-        c(dataset, trust_name, app_version, run_stage),
+        c(dataset, hospital_site, app_version, run_stage),
         as.factor  # to allow for discrete selections in the datatable
       ),
       outputs_link = glue::glue(
         "<a href='{outputs_link}' target='_blank'>Outputs app</a>"
       )
-    ) |> 
+    ) |>
     dplyr::rename_with(
-      \(col) col |> 
+      \(col) col |>
         stringr::str_replace_all("_", " ") |>
         stringr::str_to_sentence()
-    ) |> 
-    dplyr::rename("Scheme code" = Dataset)
-  
+    ) |>
+    dplyr::rename("Scheme code" = Dataset) |>
+    dplyr::arrange("Hospital site")
+
 }
 
 #' Encrypt a Model Run's Filename
@@ -75,23 +86,5 @@ encrypt_filename <- function(
     # Connect does something weird if it encounters strings of the form /w==,
     # where / can be any special character.
     URLencode(reserved = TRUE)
-
-}
-
-#' Return a Trust Name Given an ODS Code
-#' @param org_code Character. Three-character string.
-#' @details Borrowed from nhp_inputs.
-#' @return Character. The trust name.
-#' @noRd
-lookup_ods_org_code_name <- function(org_code) {
-
-  req <- httr::GET(
-    "https://uat.directory.spineservices.nhs.uk",
-    path = c("ORD", "2-0-0", "organisations", org_code)
-  )
-
-  content <- httr::content(req)
-  name <- content$Organisation$Name %||% "Unknown"
-  name |> stringr::str_to_title() |> stringr::str_replace_all("Nhs", "NHS")
 
 }

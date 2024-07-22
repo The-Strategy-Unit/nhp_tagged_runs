@@ -6,10 +6,16 @@ params:
   tagged_runs: NULL
 ---
 
+## Notes
+
 Each row of this table represents a model run that the Data Science team has tagged with the metadata key 'run_stage' (initial, intermediate or final, with a suffix denoting the non-demographic variant).
 
 Note that this table is not intended as a tool for data governance.
 Schemes and model-relationship managers must keep their own records.
+
+Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
+
+## Tagged runs
 
 ```{r}
 #| label: create-reactable
