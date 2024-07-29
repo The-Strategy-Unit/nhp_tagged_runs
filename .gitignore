@@ -1,4 +1,4 @@
-# Potential data files to exclude
+# Potential files to exclude
 *.csv
 *.json
 *.[rR][dD][sS]
@@ -7,18 +7,17 @@
 *.yaml
 *.yml
 *.xlsx
-
-# Potential output files to exclude
 *.docx
 *.html
 *.pdf
-
-# Potential output images
 *.jpeg
 *.jpg
 *.png
 *.svg
 *.tiff
+
+# Files to retain
+!data/nhp-trust-code-lookup.csv
 
 # History files
 .Rhistory

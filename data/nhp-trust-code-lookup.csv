@@ -1,0 +1,29 @@
+﻿PHASE,Name of Trust,Name of Hospital site,Trust ODS Code,Site ODS Code,"ON ""CURRENT PROVIDERS"" LIST?"
+1,Airedale NHS Foundation Trust,Airedale,RCF,,
+1,Frimley Health NHS Foundation Trust,Frimley,RDU,,
+1,North West Anglia NHS Foundation Trust,Hinchingbrooke,RGN,RGN90,
+1,James Paget University Hospital NHS Trust,James Paget,RGP,,
+1,Queen Elizabeth Hospital Kings Lynn NHS Trust,Kings Lynn,RCX,,
+1,Mid Cheshire Hospital NHS Trust,Leighton ,RBT,,
+2,Hampshire Hospitals NHS Foundation Trust,Hampshire,RN5,,
+2,The Hillingdon Hospitals NHS Foundation Trust,Hillingdon,RAS,,
+2,The Princess Alexandra Hospital NHS Trust,PAH,RQW,,
+2,West Hertfordshire Teaching Hospitals NHS Trust,Watford,RWG,RWG02,
+2,Barts Health NHS Trust,Whipps Cross,R1H,R1HKH,
+3,Hampshire Hospitals NHS Foundation Trust,Hampshire,RN5,,
+3,University Hospitals of Leicester NHS Trust,Leicester,RWE,,NO
+3,Epsom and St Helier University Hospitals NHS Trust,Epsom,RVR,,NO
+3,Kettering General Hospital NHS Foundation Trust,Kettering,RNQ,,
+3,Somerset NHS Foundation Trust,Somerset,RH5,,
+3,Torbay and South Devon NHS Foundation Trust,Torbay,RA9,,
+3,Manchester University NHS Foundation Trust,North Manchester,R0A,R0A66,NO
+4,East Sussex Healthcare NHS Trust,East Sussex,RXC,,
+4,University Hospitals of Morecambe Bay NHS Foundation Trust,Royal Lancaster Infirmary,RTX,RTX02,NO
+4,Royal Devon University Healthcare NHS Foundation Trust,North Devon,RH8,RH880,
+4,Royal Berkshire NHS Foundation Trust,Royal Berkshire,RHW,,
+4,Lancashire Teaching Hospitals NHS Foundation Trust,Royal Preston,RXN,RXN02,
+5,Imperial College Healthcare NHS Trust,St Marys,RYJ,RYJ01,
+5,Imperial College Healthcare NHS Trust,Charing Cross,RYJ,RYJ02,
+5,Imperial College Healthcare NHS Trust,Hammersmith,RYJ,RYJ03,
+5,Nottingham University Hospitals NHS Trust,Nottingham,RX1,,
+5,West Suffolk NHS Foundation Trust,West Suffolk,RGR,,
