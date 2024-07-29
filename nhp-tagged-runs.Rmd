@@ -1,25 +1,53 @@
 ---
 title: "Tagged NHP model runs"
+subtitle: "A simple interactive table to check metadata"
 date: "Last updated: `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
-format: html
-params:
-  tagged_runs: NULL
+output: html_document
 ---
 
-## Notes
+```{r}
+#| label: prep-workspace
+#| echo: false
+#| message: false
 
-Each row of this table represents a model run that the Data Science team has tagged with the metadata key 'run_stage' (initial, intermediate or final, with a suffix denoting the non-demographic variant).
+source("R/azure.R")
+source("R/wrangle.R")
+source("R/table.R")
 
-Note that this table is not intended as a tool for data governance.
-Schemes and model-relationship managers must keep their own records.
+tagged_runs <- 
+  get_container() |> 
+  get_nhp_result_sets() |> 
+  prepare_run_stage_runs()
+```
 
-Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
-
-## Tagged runs
+---
 
 ```{r}
 #| label: create-reactable
 #| echo: false
-source("R/table.R")
-create_reactable(dat = params$tagged_runs)
+create_reactable(dat = tagged_runs)
 ```
+
+---
+
+## Notes
+
+Each row of the table represents a model run that we (the Data Science team) have tagged with the 'run_stage' metadata key in Azure Storage.
+This metadata is used to identify model runs considered as an 'initial', 'intermediate' (in development) or 'final' (used to produce final reports).
+The run_stage suffixes 'ndg1' and 'ndg2' indicate whether the run used non-demographic growth (NDG) variant 1 or 2.
+
+There is functionality for you to:
+
+* search and filter across the whole table or column-by-column
+* open the NHP Outputs app pre-loaded with the selected run
+* download a CSV of the currently-filtered data
+
+Be aware that:
+
+* this is intended primarily as a tool for the Data Science team
+* it may not reflect the current up-to-the-moment 'truth' (check the 'last updated' datetime)
+* it is not intended for purposes of governance, as schemes and model-relationship managers should keep their own records
+
+Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
+
+---
