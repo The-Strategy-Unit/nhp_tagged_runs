@@ -13,40 +13,32 @@ prepare_run_stage_runs <- function(
 
   run_stage_results <- result_sets |>
     dplyr::filter(!is.na(run_stage)) |>
-    dplyr::select(dataset, scenario, app_version, run_stage, file)
+    dplyr::select(dataset, scenario, app_version, run_stage, site_codes, file)
 
   # Generate encrypted bit of the outputs app URL
   run_stage_results$url_file_encrypted <- run_stage_results$file |>
     purrr::map(encrypt_filename) |>
     unlist()
 
-  trust_lookup <- readr::read_csv(
-    trust_lookup_file,
-    col_select = c("Name of Hospital site", "Trust ODS Code"),
-    show_col_types = FALSE
-  ) |>
-    dplyr::select(
-      dataset = "Trust ODS Code",
-      hospital_site = "Name of Hospital site"
-    )
+  trust_lookup <- readr::read_csv(trust_lookup_file, show_col_types = FALSE)
 
   run_stage_results |>
-    dplyr::left_join(trust_lookup, by = "dataset") |>
+    dplyr::left_join(trust_lookup, by = dplyr::join_by("dataset" == "code")) |>
     dplyr::mutate(
+      scheme = glue::glue("{scheme} ({dataset})"),
       url_app_version = stringr::str_replace(app_version, "\\.", "-"),
-      url_stub = glue::glue("https://connect.strategyunitwm.nhs.uk/nhp/{url_app_version}/outputs/?"),
+      url_stub = glue::glue(
+        "https://connect.strategyunitwm.nhs.uk/nhp/{url_app_version}/outputs/?"
+      ),
       outputs_link = glue::glue("{url_stub}{url_file_encrypted}")
     ) |>
     dplyr::select(
-      dataset,
-      hospital_site,
-      tidyselect::everything(),
-      -file,
-      -tidyselect::starts_with("url_")
+      scheme, scenario, run_stage, site_codes, app_version, outputs_link,
+      -c(trust, dataset, file, tidyselect::starts_with("url_"))
     ) |>
     dplyr::mutate(
       dplyr::across(
-        c(dataset, hospital_site, app_version, run_stage),
+        c(scheme, app_version, run_stage),
         as.factor  # to allow for discrete selections in the datatable
       ),
       outputs_link = glue::glue(
@@ -58,8 +50,7 @@ prepare_run_stage_runs <- function(
         stringr::str_replace_all("_", " ") |>
         stringr::str_to_sentence()
     ) |>
-    dplyr::rename("Scheme code" = Dataset) |>
-    dplyr::arrange("Hospital site")
+    dplyr::arrange(Scheme)
 
 }
 
