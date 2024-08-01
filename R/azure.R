@@ -33,13 +33,12 @@ get_container <- function(
   token <- if (app_id != "") {
     AzureAuth::get_azure_token(
       resource = "https://storage.azure.com",
-      tenant = Sys.getenv("AZ_TENANT_ID"),
+      tenant = tenant,
       app = app_id,
       auth_type = "device_code"
     )
   } else {
-    AzureAuth::get_managed_token("https://storage.azure.com/") |>
-      AzureAuth::extract_jwt()
+    AzureAuth::get_managed_token("https://storage.azure.com/")
   }
 
   ep_uri |>
