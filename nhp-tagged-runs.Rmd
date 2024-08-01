@@ -14,10 +14,9 @@ source("R/azure.R")
 source("R/wrangle.R")
 source("R/table.R")
 
-tagged_runs <- 
-  get_container() |> 
-  get_nhp_result_sets() |> 
-  prepare_run_stage_runs()
+tagged_runs <- get_container()
+result_sets <- get_nhp_result_sets(tagged_runs)
+tagged_runs <- prepare_run_stage_runs(result_sets)
 ```
 
 ---

@@ -50,8 +50,7 @@ get_container <- function(
 
 get_nhp_user_allowed_datasets <- function(groups = NULL) {
 
-  p <- system.file("extdata", "providers.json", package = "su.azure") |>
-    jsonlite::read_json(simplifyVector = TRUE)
+  p <- jsonlite::read_json("data/providers.json", simplifyVector = TRUE)
 
   if (!(is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups))) {
     a <- groups |>
