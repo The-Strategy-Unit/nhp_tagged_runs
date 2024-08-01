@@ -38,8 +38,7 @@ get_container <- function(
       auth_type = "device_code"
     )
   } else {
-    AzureAuth::get_managed_token("https://storage.azure.com/") |>
-      AzureAuth::extract_jwt()
+    AzureAuth::get_managed_token("https://storage.azure.com/")
   }
 
   ep_uri |>
