@@ -69,3 +69,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# *_files from Quarto/Rmd
+*_files/
