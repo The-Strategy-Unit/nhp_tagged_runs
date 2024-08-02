@@ -12,12 +12,13 @@ create_reactable <- function(dat) {
         list(width = "100px", targets = 0),
         list(width = "100px", targets = 1),
         list(width = "100px", targets = 2),
-        list(width = "75px",  targets = 3),
+        list(width = "100px", targets = 3),
         list(width = "75px",  targets = 4),
-        list(width = "75px",  targets = 5)
+        list(width = "75px",  targets = 5),
+        list(searchable = FALSE, targets = 5),  # no need to search link column
+        list(visible = FALSE, targets = 6)  # hide in table, see in download
       ),
       pageLength = 5,
-      columnDefs = list(list(targets = 5, searchable = FALSE)),
       buttons = list(
         list(
           extend = "csv",

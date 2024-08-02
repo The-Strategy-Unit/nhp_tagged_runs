@@ -13,7 +13,9 @@ prepare_run_stage_runs <- function(
 
   run_stage_results <- result_sets |>
     dplyr::filter(!is.na(run_stage)) |>
-    dplyr::select(dataset, scenario, app_version, run_stage, site_codes, file)
+    dplyr::select(
+      dataset, scenario, create_datetime, app_version, run_stage, file
+    )
 
   # Generate encrypted bit of the outputs app URL
   run_stage_results$url_file_encrypted <- run_stage_results$file |>
@@ -26,6 +28,10 @@ prepare_run_stage_runs <- function(
     dplyr::left_join(trust_lookup, by = dplyr::join_by("dataset" == "code")) |>
     dplyr::mutate(
       scheme = glue::glue("{scheme} ({dataset})"),
+      create_datetime = create_datetime |>
+        lubridate::as_datetime() |>
+        format("%Y-%m-%d %H:%M:%S") |>
+        as.character(),
       url_app_version = stringr::str_replace(app_version, "\\.", "-"),
       url_stub = glue::glue(
         "https://connect.strategyunitwm.nhs.uk/nhp/{url_app_version}/outputs/?"
@@ -33,24 +39,27 @@ prepare_run_stage_runs <- function(
       outputs_link = glue::glue("{url_stub}{url_file_encrypted}")
     ) |>
     dplyr::select(
-      scheme, scenario, run_stage, site_codes, app_version, outputs_link,
+      scheme, scenario, create_datetime, run_stage, app_version, outputs_link,
       -c(trust, dataset, file, tidyselect::starts_with("url_"))
     ) |>
     dplyr::mutate(
       dplyr::across(
         c(scheme, app_version, run_stage),
         as.factor  # to allow for discrete selections in the datatable
-      ),
-      outputs_link = glue::glue(
-        "<a href='{outputs_link}' target='_blank'>Outputs app</a>"
       )
     ) |>
+    dplyr::mutate(
+      outputs_app = glue::glue(
+        "<a href='{outputs_link}' target='_blank'>Launch</a> \U1F517"
+      ),
+      .before = outputs_link
+    ) |>
+    dplyr::arrange(scheme, run_stage) |>
     dplyr::rename_with(
       \(col) col |>
         stringr::str_replace_all("_", " ") |>
         stringr::str_to_sentence()
-    ) |>
-    dplyr::arrange(Scheme)
+    )
 
 }
 

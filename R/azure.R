@@ -6,9 +6,9 @@ get_nhp_result_sets <- function(
     allowed_datasets = get_nhp_user_allowed_datasets(NULL),
     folder = "prod"
 ) {
-
+  
   allowed <- tibble::tibble(dataset = allowed_datasets)
-
+  
   container |>
     AzureStor::list_blobs(folder, info = "all", recursive = TRUE) |>
     dplyr::filter(!.data[["isdir"]]) |>
@@ -18,7 +18,7 @@ get_nhp_result_sets <- function(
     dplyr::bind_rows(.id = "file") |>
     dplyr::semi_join(allowed, by = dplyr::join_by("dataset")) |>
     dplyr::mutate(dplyr::across("viewable", as.logical))
-
+  
 }
 
 get_container <- function(
@@ -27,7 +27,7 @@ get_container <- function(
     ep_uri = Sys.getenv("AZ_STORAGE_EP"),
     container_name = Sys.getenv("AZ_STORAGE_CONTAINER")
 ) {
-
+  
   # if the app_id variable is empty, we assume that this is running on an Azure VM,
   # and then we will use Managed Identities for authentication.
   token <- if (app_id != "") {
@@ -40,25 +40,24 @@ get_container <- function(
   } else {
     AzureAuth::get_managed_token("https://storage.azure.com/")
   }
-
+  
   ep_uri |>
     AzureStor::blob_endpoint(token = token) |>
     AzureStor::storage_container(container_name)
-
+  
 }
 
 get_nhp_user_allowed_datasets <- function(groups = NULL) {
-
-  p <- system.file("extdata", "providers.json", package = "su.azure") |>
-    jsonlite::read_json(simplifyVector = TRUE)
-
+  
+  p <- jsonlite::read_json("data/providers.json", simplifyVector = TRUE)
+  
   if (!(is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups))) {
     a <- groups |>
       stringr::str_subset("^nhp_provider_") |>
       stringr::str_remove("^nhp_provider_")
     p <- intersect(p, a)
   }
-
+  
   c("synthetic", p)
-
+  
 }
