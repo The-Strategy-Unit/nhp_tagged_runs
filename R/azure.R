@@ -74,14 +74,15 @@ get_scheme_lookup <- function(container, file) {
     )
 }
 
-get_nhp_user_allowed_datasets <- function(
-    groups = NULL,
-    container = container_support
-) {
+get_nhp_user_allowed_datasets <- function(groups = NULL) {
+
+  container_support <-
+    Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
+    get_container(container_name = _)
 
   raw_json <- AzureStor::storage_download(
-    container,
-    src = , "providers.json",
+    container_support,
+    src = "providers.json",
     dest = NULL
   )
 
