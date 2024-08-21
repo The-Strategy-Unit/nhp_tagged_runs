@@ -28,30 +28,33 @@ get_container <- function(
 }
 
 get_nhp_result_sets <- function(
-    container,
-    allowed_datasets = get_nhp_user_allowed_datasets(NULL),
+    container_results,
+    container_support,
     folder = "prod"
 ) {
 
+  allowed_datasets <- get_nhp_user_allowed_datasets(NULL, container_support)
   allowed <- tibble::tibble(dataset = allowed_datasets)
 
-  container |>
+  container_results |>
     AzureStor::list_blobs(folder, info = "all", recursive = TRUE) |>
     dplyr::filter(!.data[["isdir"]]) |>
     purrr::pluck("name") |>
     purrr::set_names() |>
-    purrr::map(\(name, ...) AzureStor::get_storage_metadata(container, name)) |>
+    purrr::map(
+      \(name, ...) AzureStor::get_storage_metadata(container_results, name)
+    ) |>
     dplyr::bind_rows(.id = "file") |>
     dplyr::semi_join(allowed, by = dplyr::join_by("dataset")) |>
     dplyr::mutate(dplyr::across("viewable", as.logical))
 
 }
 
-get_report_sites <- function(container) {
+get_report_sites <- function(container_support) {
 
   raw_json <- AzureStor::storage_download(
-    container,
-    src = , "nhp-final-report-sites.json",
+    container_support,
+    src = "nhp-final-report-sites.json",
     dest = NULL
   )
 
@@ -61,9 +64,9 @@ get_report_sites <- function(container) {
 
 }
 
-get_scheme_lookup <- function(container, file) {
+get_scheme_lookup <- function(container_support, file) {
   AzureStor::storage_read_csv(
-    container,
+    container_support,
     "nhp-scheme-lookup.csv",
     show_col_types = FALSE
   ) |>
@@ -74,11 +77,7 @@ get_scheme_lookup <- function(container, file) {
     )
 }
 
-get_nhp_user_allowed_datasets <- function(groups = NULL) {
-
-  container_support <-
-    Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
-    get_container(container_name = _)
+get_nhp_user_allowed_datasets <- function(groups = NULL, container_support) {
 
   raw_json <- AzureStor::storage_download(
     container_support,

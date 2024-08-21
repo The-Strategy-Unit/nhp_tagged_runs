@@ -42,7 +42,7 @@ container_support <-
   Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |> 
   get_container(container_name = _)
 
-result_sets  <- get_nhp_result_sets(container_results)
+result_sets  <- get_nhp_result_sets(container_results, container_support)
 scheme_lookup <- get_scheme_lookup(container_support)
 runs_table  <- prepare_run_stage_runs(result_sets, scheme_lookup)
 
