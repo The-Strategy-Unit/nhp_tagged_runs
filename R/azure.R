@@ -74,10 +74,20 @@ get_scheme_lookup <- function(container, file) {
     )
 }
 
+get_nhp_user_allowed_datasets <- function(
+    groups = NULL,
+    container = container_support
+) {
 
-get_nhp_user_allowed_datasets <- function(groups = NULL) {
+  raw_json <- AzureStor::storage_download(
+    container,
+    src = , "providers.json",
+    dest = NULL
+  )
 
-  p <- jsonlite::read_json("data/providers.json", simplifyVector = TRUE)
+  p <- raw_json |>
+    rawToChar() |>
+    jsonlite::fromJSON(simplifyVector = TRUE)
 
   if (!(is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups))) {
     a <- groups |>

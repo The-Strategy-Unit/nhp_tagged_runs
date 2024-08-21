@@ -1,15 +1,4 @@
-
-#' Fetch all Runs with 'run_stage' Metadata
-#' @param result_sets A data.frame. A row per run, with columns for each item of
-#'     metadata. Probably returned by \link[su.azure]{get_nhp_result_sets}.
-#' @param trust_lookup_file Character. A path to a file containing a lookup from
-#'    ODS codes to trust names to hospital sites.
-#' @return A data.frame.
-#' @noRd
-prepare_run_stage_runs <- function(
-    result_sets,
-    trust_lookup
-) {
+prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
 
   run_stage_results <- result_sets |>
     dplyr::filter(!is.na(run_stage)) |>
@@ -23,7 +12,7 @@ prepare_run_stage_runs <- function(
     unlist()
 
   run_stage_results |>
-    dplyr::left_join(trust_lookup, by = dplyr::join_by("dataset" == "code")) |>
+    dplyr::left_join(scheme_lookup, by = dplyr::join_by("dataset" == "code")) |>
     dplyr::mutate(
       scheme = glue::glue("{scheme} ({dataset})"),
       create_datetime = create_datetime |>
@@ -37,7 +26,7 @@ prepare_run_stage_runs <- function(
       outputs_link = glue::glue("{url_stub}{url_file_encrypted}")
     ) |>
     dplyr::select(
-      scheme, scenario, create_datetime, run_stage, app_version, outputs_link,
+      scheme, scenario, create_datetime, app_version, run_stage, outputs_link,
       -c(trust, dataset, file, tidyselect::starts_with("url_"))
     ) |>
     dplyr::mutate(
@@ -61,13 +50,6 @@ prepare_run_stage_runs <- function(
 
 }
 
-#' Encrypt a Model Run's Filename
-#' @param filename Character. The path on Azure Storage to a .json.gz file that
-#'     contains a model run.
-#' @param key_b64 Character. A base-64-encoded key used to encrypt `filename`.
-#' @details Borrowed from nhp_inputs.
-#' @return Character.
-#' @noRd
 encrypt_filename <- function(
     filename,
     key_b64 = Sys.getenv("NHP_ENCRYPT_KEY")
@@ -85,4 +67,28 @@ encrypt_filename <- function(
     # where / can be any special character.
     URLencode(reserved = TRUE)
 
+}
+
+tabulate_sites <- function(report_sites) {
+  report_sites |>
+    tibble::enframe(name = "scheme_code") |>
+    tidyr::unnest_wider(value) |>
+    tidyr::unnest_longer(sites,indices_to = "activity_type") |>
+    tidyr::unnest_longer(sites, keep_empty = TRUE) |>
+    dplyr::mutate(
+      .keep = "none",
+      `Scheme name` = paste0(scheme_name, " (", scheme_code, ")"),
+      `Activity type` = dplyr::case_match(
+        activity_type,
+        "aae" ~ "A&E",
+        "ip" ~ "Inpatients",
+        "op" ~ "Outpatients"
+      ),
+      Sites = dplyr::if_else(is.na(sites), "All", sites)
+    ) |>
+    dplyr::summarise(
+      .by = c(`Scheme name`, `Activity type`),
+      Sites = paste0(Sites, collapse = ", ")
+    ) |>
+    dplyr::arrange(`Scheme name`)
 }
