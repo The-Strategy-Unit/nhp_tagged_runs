@@ -1,26 +1,14 @@
 ---
-title: "NHP: tagged model scenarios and schemes"
-date: "last-modified"
-date-format: D MMM YYYY HH:mm:ss
-author:
-  - name: The Data Science Team
-    email: mlcsu.su.datascience@nhs.net
-format:
-  html:
-    self-contained: true
-    toc: true
-    number-sections: false
-    grid:
-      body-width: 1000px
-execute:
-  echo: false
-  message: false
-  warning: false
+title: "NHP: tagged model scenarios and sites"
+date: "Last updated: `r format(Sys.time(), '%d %b %Y at %H:%M')`"
+output: html_document
 ---
 
-```{r mess}
+```{r}
 #| label: check-env-vars
 #| results: "asis"
+#| echo: false
+#| message: false
 
 required_env_vars <- c(
   "AZ_TENANT_ID",
@@ -39,6 +27,8 @@ if (any(Sys.getenv(required_env_vars) == "")) {
 
 ```{r}
 #| label: prepare-tables
+#| echo: false
+#| message: false
 
 source("R/azure.R")
 source("R/wrangle.R")
@@ -60,9 +50,11 @@ report_sites <- get_report_sites(container_support)
 sites_table <- tabulate_sites(report_sites)
 ```
 
+---
+
 ## Purpose
 
-Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospital Programme. This will help ensure that products such as the outputs and mitigator-comparison reports will contain the correct information.
+Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs and mitigator-comparison reports will contain the correct information.
 
 This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
 
@@ -72,6 +64,7 @@ Check that the correct model scenarios have been tagged with the correct 'run st
 
 ```{r}
 #| label: runs-table
+#| echo: false
 create_datatable_runs(runs_table)
 ```
 
@@ -81,6 +74,7 @@ Check that the correct sites have been specified for the production of output re
 
 ```{r}
 #| label: sites-table
+#| echo: false
 create_datatable_sites(sites_table)
 ```
 
