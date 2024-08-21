@@ -8,7 +8,7 @@
 #' @noRd
 prepare_run_stage_runs <- function(
     result_sets,
-    trust_lookup_file = "data/nhp-trust-code-lookup.csv"
+    trust_lookup
 ) {
 
   run_stage_results <- result_sets |>
@@ -21,8 +21,6 @@ prepare_run_stage_runs <- function(
   run_stage_results$url_file_encrypted <- run_stage_results$file |>
     purrr::map(encrypt_filename) |>
     unlist()
-
-  trust_lookup <- readr::read_csv(trust_lookup_file, show_col_types = FALSE)
 
   run_stage_results |>
     dplyr::left_join(trust_lookup, by = dplyr::join_by("dataset" == "code")) |>
