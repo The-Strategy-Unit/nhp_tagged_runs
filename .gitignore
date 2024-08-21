@@ -16,10 +16,6 @@
 *.svg
 *.tiff
 
-# Files to retain
-!data/nhp-trust-code-lookup.csv
-!data/providers.json
-
 # History files
 .Rhistory
 .Rapp.history
