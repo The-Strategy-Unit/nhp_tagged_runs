@@ -1,5 +1,5 @@
 ---
-title: "NHP: tagged model scenarios and sites"
+title: "NHP: tagged scenarios and site selections"
 date: "Last updated: `r format(Sys.time(), '%d %b %Y at %H:%M')`"
 output: html_document
 ---
@@ -54,7 +54,7 @@ sites_table <- tabulate_sites(report_sites)
 
 ## Purpose
 
-Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs and mitigator-comparison reports will contain the correct information.
+Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
 
 This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
 
@@ -68,7 +68,7 @@ Check that the correct model scenarios have been tagged with the correct 'run st
 create_datatable_runs(runs_table)
 ```
 
-## Schemes
+## Sites
 
 Check that the correct sites have been specified for the production of output reports. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, site codes and whether these apply differently depending on the activity type (A&E, inpatients and outpatients).
 
@@ -80,7 +80,7 @@ create_datatable_sites(sites_table)
 
 ## Notes
 
-There is functionality for you to:
+There is functionality in the tables for you to:
 
 - search and filter across the whole tables or column-by-column
 - open the NHP Outputs app pre-loaded with the selected run
