@@ -33,6 +33,7 @@ if (any(Sys.getenv(required_env_vars) == "")) {
 source("R/azure.R")
 source("R/wrangle.R")
 source("R/table.R")
+library(readr)
 
 container_results <- 
   Sys.getenv("AZ_STORAGE_CONTAINER_RESULTS") |> 
