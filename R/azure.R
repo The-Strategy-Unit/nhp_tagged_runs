@@ -65,7 +65,7 @@ get_report_sites <- function(container_support) {
 
 }
 
-get_scheme_lookup <- function(container_support, file) {
+get_scheme_lookup <- function(container_support) {
   AzureStor::storage_read_csv(
     container_support,
     "nhp-scheme-lookup.csv",
@@ -75,7 +75,11 @@ get_scheme_lookup <- function(container_support, file) {
       code = `Trust ODS Code`,
       scheme = `Name of Hospital site`,
       trust = `Name of Trust`
-    )
+    ) |>
+    # Reduce St Marys, Charing Cross, Hammersmith (all RYJ) to Imperial
+    dplyr::mutate(scheme = dplyr::if_else(code == "RYJ", "Imperial", scheme)) |>
+    dplyr::distinct(code, scheme, trust) |>
+    dplyr::arrange(code)
 }
 
 get_nhp_user_allowed_datasets <- function(groups = NULL, container_support) {
