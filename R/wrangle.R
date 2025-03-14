@@ -47,6 +47,7 @@ prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
       ),
       .before = outputs_link
     ) |>
+    dplyr::relocate("file", .before = "outputs_app") |>
     dplyr::arrange(scheme, run_stage) |>
     dplyr::rename_with(
       \(col) col |>
