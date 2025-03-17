@@ -57,11 +57,11 @@ sites_table <- tabulate_sites(report_sites)
 
 Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
 
-This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be updated.
+This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be changed.
 
 ## Scenarios
 
-Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, scenario name, app version and run stage ('initial', 'intermediate' or 'final report') and non-demographic growth (NDG) variant (1 or 2).
+Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, scenario name, app version and run stage (currently 'initial', 'intermediate', 'final report', or 'addendum report') and non-demographic growth (NDG) variant (1, 2 or 3).
 
 ```{r}
 #| label: runs-table

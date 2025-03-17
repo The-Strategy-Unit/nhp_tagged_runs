@@ -26,8 +26,14 @@ prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
       outputs_link = glue::glue("{url_stub}{url_file_encrypted}")
     ) |>
     dplyr::select(
-      scheme, scenario, create_datetime, app_version, run_stage, outputs_link,
-      -c(trust, dataset, file, tidyselect::starts_with("url_"))
+      scheme,
+      scenario,
+      create_datetime,
+      app_version,
+      run_stage,
+      file,
+      outputs_link,
+      -c(trust, dataset, tidyselect::starts_with("url_"))
     ) |>
     dplyr::mutate(
       dplyr::across(
@@ -41,6 +47,7 @@ prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
       ),
       .before = outputs_link
     ) |>
+    dplyr::relocate("file", .before = "outputs_app") |>
     dplyr::arrange(scheme, run_stage) |>
     dplyr::rename_with(
       \(col) col |>

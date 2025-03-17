@@ -14,9 +14,9 @@ create_datatable_runs <- function(runs_table) {
           list(width = "100px", targets = 2),
           list(width = "75px",  targets = 3),
           list(width = "100px", targets = 4),
-          list(width = "75px",  targets = 5),
-          list(searchable = FALSE, targets = 5),  # no need to search link column
-          list(visible = FALSE, targets = 6)  # hide in table, see in download
+          list(searchable = FALSE, targets = 5),
+          list(searchable = FALSE, targets = 6),
+          list(visible = FALSE, targets = 7)  # hide in table, see in download
         ),
         pageLength = 6,
         buttons = list(
