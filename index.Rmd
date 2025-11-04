@@ -12,21 +12,21 @@ output: html_document
 
 required_env_vars <- c(
   "AZ_TENANT_ID",
-  "AZ_STORAGE_EP",
-  "AZ_STORAGE_CONTAINER_RESULTS",
   "AZ_STORAGE_CONTAINER_SUPPORT",
+  "AZ_STORAGE_EP",
+  "AZ_TABLE_EP",
   "NHP_ENCRYPT_KEY"
 )
 
 if (any(Sys.getenv(required_env_vars) == "")) {
   cat("One of the following environment variables was not set, so exiting \n\n")
   cat(paste("*", required_env_vars, collapse = "\n"), "\n\n")
-  knitr::knit_exit() 
+  knitr::knit_exit()
 }
 ```
 
 ```{r}
-#| label: prepare-tables
+#| label: get-data
 #| echo: false
 #| message: false
 
@@ -35,29 +35,32 @@ source("R/wrangle.R")
 source("R/table.R")
 library(readr)
 
-container_results <- 
-  Sys.getenv("AZ_STORAGE_CONTAINER_RESULTS") |> 
-  get_container(container_name = _)
+scheme_lookup <- Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
+  get_container(container_name = _) |>
+  get_scheme_lookup()
 
-container_support <- 
-  Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |> 
-  get_container(container_name = _)
+storage_table <- get_table()
+entities <- storage_table |> AzureTableStor::list_table_entities()
+results_table <- entities |>
+  tibble::as_tibble() |>
+  dplyr::rename(dataset = PartitionKey)
+```
 
-result_sets  <- get_nhp_result_sets(container_results, container_support)
-scheme_lookup <- get_scheme_lookup(container_support)
-runs_table  <- prepare_run_stage_runs(result_sets, scheme_lookup)
-
-report_sites <- get_report_sites(container_support)
-sites_table <- tabulate_sites(report_sites)
+```{r}
+#| label: prepare-tables
+#| echo: false
+#| message: false
+runs_table <- tabulate_scenarios(results_table, scheme_lookup)
+sites_table <- tabulate_sites(results_table, scheme_lookup)
 ```
 
 ---
 
 ## Purpose
 
-Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
+Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme (NHP). This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
 
-This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be changed.
+This page updates automatically once per week (see the publish date and time above), but is usually updated manually when new information is available. Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be changed.
 
 ## Scenarios
 

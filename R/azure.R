@@ -2,14 +2,13 @@
 # PAT headaches when trying to deploy the Rmd to Connect.
 
 get_container <- function(
-    tenant = Sys.getenv("AZ_TENANT_ID"),
-    app_id = Sys.getenv("AZ_APP_ID"),
-    ep_uri = Sys.getenv("AZ_STORAGE_EP"),
-    container_name  # AZ_STORAGE_CONTAINER_RESULTS or _SUPPORT
+  tenant = Sys.getenv("AZ_TENANT_ID"),
+  app_id = Sys.getenv("AZ_APP_ID"),
+  ep_uri = Sys.getenv("AZ_STORAGE_EP"),
+  container_name # AZ_STORAGE_CONTAINER_RESULTS or _SUPPORT
 ) {
-
-  # if the app_id variable is empty, we assume that this is running on an Azure VM,
-  # and then we will use Managed Identities for authentication.
+  # if the app_id variable is empty, we assume that this is running on an Azure
+  # VM, and then we will use Managed Identities for authentication.
   token <- if (app_id != "") {
     AzureAuth::get_azure_token(
       resource = "https://storage.azure.com",
@@ -25,15 +24,37 @@ get_container <- function(
   ep_uri |>
     AzureStor::blob_endpoint(token = token) |>
     AzureStor::storage_container(container_name)
+}
 
+get_table <- function(
+  tenant = Sys.getenv("AZ_TENANT_ID"),
+  app_id = Sys.getenv("AZ_APP_ID"),
+  ep_uri = Sys.getenv("AZ_TABLE_EP")
+) {
+  # if the app_id variable is empty, we assume that this is running on an Azure VM,
+  # and then we will use Managed Identities for authentication.
+  token <- if (app_id != "") {
+    AzureAuth::get_azure_token(
+      resource = "https://storage.azure.com",
+      tenant = tenant,
+      app = app_id,
+      auth_type = "device_code",
+      use_cache = TRUE
+    )
+  } else {
+    AzureAuth::get_managed_token("https://storage.azure.com/")
+  }
+
+  ep_uri |>
+    AzureTableStor::table_endpoint(, token = token) |>
+    AzureTableStor::storage_table("taggedruns")
 }
 
 get_nhp_result_sets <- function(
-    container_results,
-    container_support,
-    folder = "prod"
+  container_results,
+  container_support,
+  folder = "prod"
 ) {
-
   allowed_datasets <- get_nhp_user_allowed_datasets(NULL, container_support)
   allowed <- tibble::tibble(dataset = allowed_datasets)
 
@@ -48,11 +69,9 @@ get_nhp_result_sets <- function(
     dplyr::bind_rows(.id = "file") |>
     dplyr::semi_join(allowed, by = dplyr::join_by("dataset")) |>
     dplyr::mutate(dplyr::across("viewable", as.logical))
-
 }
 
 get_report_sites <- function(container_support) {
-
   raw_json <- AzureStor::storage_download(
     container_support,
     src = "nhp-final-report-sites.json",
@@ -62,7 +81,6 @@ get_report_sites <- function(container_support) {
   raw_json |>
     rawToChar() |>
     jsonlite::fromJSON()
-
 }
 
 get_scheme_lookup <- function(container_support) {
@@ -83,7 +101,6 @@ get_scheme_lookup <- function(container_support) {
 }
 
 get_nhp_user_allowed_datasets <- function(groups = NULL, container_support) {
-
   raw_json <- AzureStor::storage_download(
     container_support,
     src = "providers.json",
@@ -102,5 +119,4 @@ get_nhp_user_allowed_datasets <- function(groups = NULL, container_support) {
   }
 
   c("synthetic", p)
-
 }
