@@ -40,10 +40,7 @@ scheme_lookup <- Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
   get_scheme_lookup()
 
 storage_table <- get_table()
-entities <- storage_table |> AzureTableStor::list_table_entities()
-results_table <- entities |>
-  tibble::as_tibble() |>
-  dplyr::rename(dataset = PartitionKey)
+results_table <- storage_table |> dplyr::rename(dataset = PartitionKey)
 ```
 
 ```{r}
@@ -58,13 +55,24 @@ sites_table <- tabulate_sites(results_table, scheme_lookup)
 
 ## Purpose
 
-Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme (NHP). This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
+Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme (NHP).
+This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
 
-This page updates automatically once per week (see the publish date and time above), but is usually updated manually when new information is available. Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be changed.
+This page updates automatically.
+See above for the latest publish date and time.
+The page is also usually updated manually when new information is available.
+Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here looks out of date and needs to be updated.
 
 ## Scenarios
 
-Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, scenario name, app version and run stage (currently 'initial', 'intermediate', 'final report', or 'addendum report') and non-demographic growth (NDG) variant (1, 2 or 3).
+Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates.
+Provide the scheme name, scenario name, app version and run stage (currently 'initial', 'intermediate', 'final report', or 'addendum report') and non-demographic growth (NDG) variant (1, 2 or 3).
+
+Each row is a single, tagged model run.
+You may have to scroll horizontally to see more information.
+Note that the column 'Results file' is the path to the 'old-style' zipped json file in the results container.
+'Results dir' is the path to the directory containing the 'new-style' results (parquet files and a standalone `params.json`).
+
 
 ```{r}
 #| label: runs-table
@@ -72,9 +80,17 @@ Check that the correct model scenarios have been tagged with the correct 'run st
 create_datatable_runs(runs_table)
 ```
 
+
 ## Sites
 
 Check that the correct sites have been specified for the production of output reports. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, site codes and whether these apply differently depending on the activity type (A&E, inpatients and outpatients).
+
+Each row is for each activity type of a single model run.
+You may have to scroll horizontally to see more information.
+All model runs should have sites listed against them if that run is to be used for reporting.
+Note that 'ALL' in the 'sites' column means all sites for that scheme.
+A hyphen is used where we do not have site information for that scheme.
+
 
 ```{r}
 #| label: sites-table

@@ -87,7 +87,14 @@ tabulate_sites <- function(results_table, scheme_lookup) {
   results_table |>
     dplyr::left_join(scheme_lookup, by = dplyr::join_by("dataset" == "code")) |>
     dplyr::mutate(scheme = glue::glue("{scheme} ({dataset})")) |>
-    dplyr::select(scheme, tidyselect::starts_with("sites")) |>
+    dplyr::select(
+      scheme,
+      scenario,
+      create_datetime,
+      app_version,
+      run_stage,
+      tidyselect::starts_with("sites")
+    ) |>
     dplyr::distinct() |>
     tidyr::pivot_longer(
       tidyselect::starts_with("sites"),
@@ -106,7 +113,7 @@ tabulate_sites <- function(results_table, scheme_lookup) {
       sites = stringr::str_replace_all(sites, ",", ", ")
     ) |>
     tidyr::replace_na(list(sites = "-")) |>
-    dplyr::arrange(scheme) |>
+    dplyr::arrange(scheme, run_stage) |>
     dplyr::rename_with(
       \(col) {
         col |>
