@@ -11,10 +11,11 @@ output: html_document
 #| message: false
 
 required_env_vars <- c(
-  "AZ_TENANT_ID",
   "AZ_STORAGE_CONTAINER_SUPPORT",
   "AZ_STORAGE_EP",
   "AZ_TABLE_EP",
+  "AZ_TABLE_NAME",
+  "AZ_TENANT_ID",
   "NHP_ENCRYPT_KEY"
 )
 

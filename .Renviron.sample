@@ -1,10 +1,11 @@
-# Needed to run locally and for deployment
+# Needed for running locally and in deployment
 AZ_STORAGE_CONTAINER_SUPPORT=
 AZ_STORAGE_EP=
 AZ_TABLE_EP=
+AZ_TABLE_NAME=
 AZ_TENANT_ID=
 NHP_ENCRYPT_KEY=
-# Needed to run locally
+# Needed locally for authorisatino
 AZ_APP_ID=
 AZ_APP_SECRET=
 AZ_STORAGE_KEY=
