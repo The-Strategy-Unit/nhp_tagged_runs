@@ -1,6 +1,3 @@
-# Most functions here copied from the private {su.azure} package to avoid GitHub
-# PAT headaches when trying to deploy the Rmd to Connect.
-
 get_container <- function(
   tenant = Sys.getenv("AZ_TENANT_ID"),
   app_id = Sys.getenv("AZ_APP_ID"),
@@ -53,42 +50,9 @@ get_table <- function(
   resp <- httr2::req_perform(req)
   entities <- httr2::resp_body_json(resp)
 
-  entities[[1]] |>
+  entities[[1]] |> # response is contained in a list
     purrr::map(tibble::as_tibble) |>
     purrr::list_rbind()
-}
-
-get_nhp_result_sets <- function(
-  container_results,
-  container_support,
-  folder = "prod"
-) {
-  allowed_datasets <- get_nhp_user_allowed_datasets(NULL, container_support)
-  allowed <- tibble::tibble(dataset = allowed_datasets)
-
-  container_results |>
-    AzureStor::list_blobs(folder, info = "all", recursive = TRUE) |>
-    dplyr::filter(!.data[["isdir"]]) |>
-    purrr::pluck("name") |>
-    purrr::set_names() |>
-    purrr::map(
-      \(name, ...) AzureStor::get_storage_metadata(container_results, name)
-    ) |>
-    dplyr::bind_rows(.id = "file") |>
-    dplyr::semi_join(allowed, by = dplyr::join_by("dataset")) |>
-    dplyr::mutate(dplyr::across("viewable", as.logical))
-}
-
-get_report_sites <- function(container_support) {
-  raw_json <- AzureStor::storage_download(
-    container_support,
-    src = "nhp-final-report-sites.json",
-    dest = NULL
-  )
-
-  raw_json |>
-    rawToChar() |>
-    jsonlite::fromJSON()
 }
 
 get_scheme_lookup <- function(container_support) {
