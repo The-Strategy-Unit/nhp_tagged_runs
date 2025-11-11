@@ -11,22 +11,23 @@ output: html_document
 #| message: false
 
 required_env_vars <- c(
-  "AZ_TENANT_ID",
-  "AZ_STORAGE_EP",
-  "AZ_STORAGE_CONTAINER_RESULTS",
   "AZ_STORAGE_CONTAINER_SUPPORT",
+  "AZ_STORAGE_EP",
+  "AZ_TABLE_EP",
+  "AZ_TABLE_NAME",
+  "AZ_TENANT_ID",
   "NHP_ENCRYPT_KEY"
 )
 
 if (any(Sys.getenv(required_env_vars) == "")) {
   cat("One of the following environment variables was not set, so exiting \n\n")
   cat(paste("*", required_env_vars, collapse = "\n"), "\n\n")
-  knitr::knit_exit() 
+  knitr::knit_exit()
 }
 ```
 
 ```{r}
-#| label: prepare-tables
+#| label: get-data
 #| echo: false
 #| message: false
 
@@ -35,33 +36,44 @@ source("R/wrangle.R")
 source("R/table.R")
 library(readr)
 
-container_results <- 
-  Sys.getenv("AZ_STORAGE_CONTAINER_RESULTS") |> 
-  get_container(container_name = _)
+scheme_lookup <- Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
+  get_container(container_name = _) |>
+  get_scheme_lookup()
 
-container_support <- 
-  Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |> 
-  get_container(container_name = _)
+storage_table <- get_table()
+results_table <- storage_table |> dplyr::rename(dataset = PartitionKey)
+```
 
-result_sets  <- get_nhp_result_sets(container_results, container_support)
-scheme_lookup <- get_scheme_lookup(container_support)
-runs_table  <- prepare_run_stage_runs(result_sets, scheme_lookup)
-
-report_sites <- get_report_sites(container_support)
-sites_table <- tabulate_sites(report_sites)
+```{r}
+#| label: prepare-tables
+#| echo: false
+#| message: false
+runs_table <- tabulate_scenarios(results_table, scheme_lookup)
+sites_table <- tabulate_sites(results_table, scheme_lookup)
 ```
 
 ---
 
 ## Purpose
 
-Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme. This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
+Use these interactive tables to make sure that the correct scenarios and sites have been labelled for each scheme in the New Hospitals Programme (NHP).
+This will help ensure that products such as the outputs report and mitigator-comparison report will contain the correct information.
 
-This page automatically updates (see the publish date and time above), but please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here needs to be changed.
+This page updates automatically.
+See above for the latest publish date and time.
+The page is also usually updated manually when new information is available.
+Please contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) if any of the information here looks out of date and needs to be updated.
 
 ## Scenarios
 
-Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, scenario name, app version and run stage (currently 'initial', 'intermediate', 'final report', or 'addendum report') and non-demographic growth (NDG) variant (1, 2 or 3).
+Check that the correct model scenarios have been tagged with the correct 'run stage' metadata. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates.
+Provide the scheme name, scenario name, app version and run stage (currently 'initial', 'intermediate', 'final report', or 'addendum report') and non-demographic growth (NDG) variant (1, 2 or 3).
+
+Each row is a single, tagged model run.
+You may have to scroll horizontally to see more information.
+Note that the column 'Results file' is the path to the 'old-style' zipped json file in the results container.
+'Results dir' is the path to the directory containing the 'new-style' results (parquet files and a standalone `params.json`).
+
 
 ```{r}
 #| label: runs-table
@@ -69,9 +81,17 @@ Check that the correct model scenarios have been tagged with the correct 'run st
 create_datatable_runs(runs_table)
 ```
 
+
 ## Sites
 
 Check that the correct sites have been specified for the production of output reports. Contact [the Data Science team](mailto:mlcsu.su.datascience@nhs.net) to ask for updates. Provide the scheme name, site codes and whether these apply differently depending on the activity type (A&E, inpatients and outpatients).
+
+Each row is for each activity type of a single model run.
+You may have to scroll horizontally to see more information.
+All model runs should have sites listed against them if that run is to be used for reporting.
+Note that 'ALL' in the 'sites' column means all sites for that scheme.
+A hyphen is used where we do not have site information for that scheme.
+
 
 ```{r}
 #| label: sites-table

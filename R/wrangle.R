@@ -1,13 +1,18 @@
-prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
-
-  run_stage_results <- result_sets |>
+tabulate_scenarios <- function(results_table, scheme_lookup) {
+  run_stage_results <- results_table |>
     dplyr::filter(!is.na(run_stage)) |>
     dplyr::select(
-      dataset, scenario, create_datetime, app_version, run_stage, file
+      dataset,
+      scenario,
+      create_datetime,
+      app_version,
+      run_stage,
+      results_file,
+      results_dir
     )
 
   # Generate encrypted bit of the outputs app URL
-  run_stage_results$url_file_encrypted <- run_stage_results$file |>
+  run_stage_results$url_file_encrypted <- run_stage_results$results_file |>
     purrr::map(encrypt_filename) |>
     unlist()
 
@@ -31,41 +36,44 @@ prepare_run_stage_runs <- function(result_sets, scheme_lookup) {
       create_datetime,
       app_version,
       run_stage,
-      file,
+      results_file,
+      results_dir,
       outputs_link,
       -c(trust, dataset, tidyselect::starts_with("url_"))
     ) |>
+    tidyr::replace_na(list(results_dir = "-")) |>
     dplyr::mutate(
       dplyr::across(
         c(scheme, app_version, run_stage),
-        as.factor  # to allow for discrete selections in the datatable
+        as.factor # to allow for discrete selections in the datatable
       )
     ) |>
     dplyr::mutate(
       outputs_app = glue::glue(
-        "<a href='{outputs_link}' target='_blank'>Launch</a> \U1F517"
+        "<a href='{outputs_link}' target='_blank'>Launch</a>"
       ),
       .before = outputs_link
     ) |>
-    dplyr::relocate("file", .before = "outputs_app") |>
+    dplyr::relocate(
+      tidyselect::starts_with("outputs_"),
+      .after = "run_stage"
+    ) |>
     dplyr::arrange(scheme, run_stage) |>
     dplyr::rename_with(
-      \(col) col |>
-        stringr::str_replace_all("_", " ") |>
-        stringr::str_to_sentence()
+      \(col) {
+        col |>
+          stringr::str_replace_all("_", " ") |>
+          stringr::str_to_sentence()
+      }
     )
-
 }
 
 encrypt_filename <- function(
-    filename,
-    key_b64 = Sys.getenv("NHP_ENCRYPT_KEY")
+  filename,
+  key_b64 = Sys.getenv("NHP_ENCRYPT_KEY")
 ) {
-
   key <- openssl::base64_decode(key_b64)
-
   f <- charToRaw(filename)
-
   ct <- openssl::aes_cbc_encrypt(f, key, NULL)
   hm <- as.raw(openssl::sha256(ct, key))
 
@@ -73,29 +81,44 @@ encrypt_filename <- function(
     # Connect does something weird if it encounters strings of the form /w==,
     # where / can be any special character.
     URLencode(reserved = TRUE)
-
 }
 
-tabulate_sites <- function(report_sites) {
-  report_sites |>
-    tibble::enframe(name = "scheme_code") |>
-    tidyr::unnest_wider(value) |>
-    tidyr::unnest_longer(sites,indices_to = "activity_type") |>
-    tidyr::unnest_longer(sites, keep_empty = TRUE) |>
+tabulate_sites <- function(results_table, scheme_lookup) {
+  results_table |>
+    dplyr::left_join(scheme_lookup, by = dplyr::join_by("dataset" == "code")) |>
+    dplyr::mutate(scheme = glue::glue("{scheme} ({dataset})")) |>
+    dplyr::select(
+      scheme,
+      scenario,
+      create_datetime,
+      app_version,
+      run_stage,
+      tidyselect::starts_with("sites")
+    ) |>
+    dplyr::distinct() |>
+    tidyr::pivot_longer(
+      tidyselect::starts_with("sites"),
+      names_to = "activity_type",
+      values_to = "sites",
+      names_prefix = "sites_",
+      names_transform = toupper
+    ) |>
     dplyr::mutate(
-      .keep = "none",
-      `Scheme name` = paste0(scheme_name, " (", scheme_code, ")"),
-      `Activity type` = dplyr::case_match(
+      activity_type = dplyr::case_match(
         activity_type,
-        "aae" ~ "A&E",
-        "ip" ~ "Inpatients",
-        "op" ~ "Outpatients"
+        "AAE" ~ "A&E",
+        "IP" ~ "Inpatients",
+        "OP" ~ "Outpatients"
       ),
-      Sites = dplyr::if_else(is.na(sites), "All", sites)
+      sites = stringr::str_replace_all(sites, ",", ", ")
     ) |>
-    dplyr::summarise(
-      .by = c(`Scheme name`, `Activity type`),
-      Sites = paste0(Sites, collapse = ", ")
-    ) |>
-    dplyr::arrange(`Scheme name`)
+    tidyr::replace_na(list(sites = "-")) |>
+    dplyr::arrange(scheme, run_stage) |>
+    dplyr::rename_with(
+      \(col) {
+        col |>
+          stringr::str_replace_all("_", " ") |>
+          stringr::str_to_sentence()
+      }
+    )
 }

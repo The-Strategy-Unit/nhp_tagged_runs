@@ -9,14 +9,8 @@ create_datatable_runs <- function(runs_table) {
         dom = "Bfrtip",
         autoWidth = TRUE,
         columnDefs = list(
-          list(width = "100px", targets = 0),
-          list(width = "100px", targets = 1),
-          list(width = "100px", targets = 2),
-          list(width = "75px",  targets = 3),
-          list(width = "100px", targets = 4),
           list(searchable = FALSE, targets = 5),
-          list(searchable = FALSE, targets = 6),
-          list(visible = FALSE, targets = 7)  # hide in table, see in download
+          list(visible = FALSE, targets = 6) # hide in table, see in download
         ),
         pageLength = 6,
         buttons = list(
