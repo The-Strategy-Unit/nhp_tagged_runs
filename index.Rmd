@@ -53,7 +53,6 @@ See notes below the table.
 #| label: runs-tables
 #| echo: false
 #| message: false
-#| page-layout: full
 
 results_table |>
   tabulate_scenarios(scheme_lookup) |>

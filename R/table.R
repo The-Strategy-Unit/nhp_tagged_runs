@@ -8,6 +8,7 @@ create_datatable_runs <- function(runs_table) {
       options = list(
         dom = "Bfrtip",
         autoWidth = TRUE,
+        scrollX = TRUE,
         columnDefs = list(
           list(searchable = FALSE, targets = 0),
           list(visible = FALSE, targets = 1) # hide in table, see in download
