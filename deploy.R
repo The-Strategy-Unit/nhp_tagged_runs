@@ -3,7 +3,7 @@ rsconnect::deployDoc(
   appId = 112,
   doc = "index.Rmd",
   appName = "nhp_tagged_runs",
-  appTitle = "NHP: tagged-runs and sites tables",
+  appTitle = "NHP: scenario run-stage table",
   lint = FALSE,
   forceUpdate = TRUE
 )
