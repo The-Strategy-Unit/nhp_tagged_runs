@@ -71,24 +71,3 @@ get_scheme_lookup <- function(container_support) {
     dplyr::distinct(code, scheme, trust) |>
     dplyr::arrange(code)
 }
-
-get_nhp_user_allowed_datasets <- function(groups = NULL, container_support) {
-  raw_json <- AzureStor::storage_download(
-    container_support,
-    src = "providers.json",
-    dest = NULL
-  )
-
-  p <- raw_json |>
-    rawToChar() |>
-    jsonlite::fromJSON(simplifyVector = TRUE)
-
-  if (!(is.null(groups) || any(c("nhp_devs", "nhp_power_users") %in% groups))) {
-    a <- groups |>
-      stringr::str_subset("^nhp_provider_") |>
-      stringr::str_remove("^nhp_provider_")
-    p <- intersect(p, a)
-  }
-
-  c("synthetic", p)
-}
