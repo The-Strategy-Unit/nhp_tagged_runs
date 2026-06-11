@@ -1,7 +1,7 @@
 get_table <- function(
   auth_token = azkit::get_auth_token(),
   table_ep = Sys.getenv("AZ_TABLE_EP"),
-  table_name = Sys.getenv("AZ_TABLE_NAME"),
+  runs_table_name = Sys.getenv("AZ_TABLE_NAME"),
   filter_entities = "run_stage eq 'final_report_ndg2'",
   select_properties = c(
     "dataset",
@@ -16,7 +16,8 @@ get_table <- function(
   )
 ) {
   azkit::read_azure_table(
-    table_name = "modelruns",
+    table_name = runs_table_name,
+    table_endpoint = table_ep,
     token = auth_token,
     filter = filter_entities,
     select = paste(select_properties, collapse = ",")
