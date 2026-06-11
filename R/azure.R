@@ -12,7 +12,7 @@ get_table <- function(
     "sites_aae",
     "sites_ip",
     "sites_op",
-    "results_json_gz_path"
+    "outputs_app_uri"
   )
 ) {
   azkit::read_azure_table(
