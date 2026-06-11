@@ -1,18 +1,12 @@
 tabulate_scenarios <- function(results_table, scheme_lookup) {
-  # Generate encrypted bit of the outputs app URL
-  results_table$url_file_encrypted <- results_table$results_file |>
-    purrr::map(encrypt_filename) |>
-    unlist()
-
   results_table |>
-    dplyr::filter(!is.na(run_stage)) |>
     dplyr::left_join(scheme_lookup, by = dplyr::join_by("dataset" == "code")) |>
+    encrypt_filenames() |>
     dplyr::mutate(
       scheme = glue::glue("{scheme} ({dataset})"),
       create_datetime = create_datetime |>
         lubridate::as_datetime() |>
-        format("%Y-%m-%d %H:%M:%S") |>
-        as.character(),
+        format("%Y-%m-%d %H:%M:%S"),
       url_app_version = stringr::str_replace(app_version, "\\.", "-"),
       url_stub = glue::glue(
         "https://connect.strategyunitwm.nhs.uk/nhp/{url_app_version}/outputs/?"
@@ -28,7 +22,7 @@ tabulate_scenarios <- function(results_table, scheme_lookup) {
       tidyselect::starts_with("sites_"), # scenario-specific sites
       tidyselect::starts_with("results_"), # results paths
       outputs_link,
-      -c(trust, dataset, tidyselect::starts_with("url_"))
+      -c(trust, dataset, results_json_gz_path, tidyselect::starts_with("url_"))
     ) |>
     tidyr::replace_na(list(results_dir = "-")) |>
     dplyr::mutate(
@@ -58,6 +52,17 @@ tabulate_scenarios <- function(results_table, scheme_lookup) {
           stringr::str_replace(" op$", " OP")
       }
     )
+}
+
+encrypt_filenames <- function(
+  results_table,
+  json_gz_column = "results_json_gz_path"
+) {
+  results_table[["url_file_encrypted"]] <- results_table[[json_gz_column]] |>
+    purrr::map(encrypt_filename) |>
+    unlist()
+
+  return(results_table)
 }
 
 encrypt_filename <- function(

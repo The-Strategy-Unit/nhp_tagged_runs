@@ -4,13 +4,15 @@ get_table <- function(
   table_name = Sys.getenv("AZ_TABLE_NAME"),
   filter_entities = "run_stage eq 'final_report_ndg2'",
   select_properties = c(
+    "dataset",
     "scenario",
     "create_datetime",
     "run_stage",
     "app_version",
     "sites_aae",
     "sites_ip",
-    "sites_op"
+    "sites_op",
+    "results_json_gz_path"
   )
 ) {
   azkit::read_azure_table(
