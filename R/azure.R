@@ -1,61 +1,29 @@
-get_container <- function(
-  tenant = Sys.getenv("AZ_TENANT_ID"),
-  app_id = Sys.getenv("AZ_APP_ID"),
-  ep_uri = Sys.getenv("AZ_STORAGE_EP"),
-  container_name # AZ_STORAGE_CONTAINER_RESULTS or _SUPPORT
-) {
-  # if the app_id variable is empty, we assume that this is running on an Azure
-  # VM, and then we will use Managed Identities for authentication.
-  token <- if (app_id != "") {
-    AzureAuth::get_azure_token(
-      resource = "https://storage.azure.com",
-      tenant = tenant,
-      app = app_id,
-      auth_type = "device_code",
-      use_cache = TRUE
-    )
-  } else {
-    AzureAuth::get_managed_token("https://storage.azure.com/")
-  }
-
-  ep_uri |>
-    AzureStor::blob_endpoint(token = token) |>
-    AzureStor::storage_container(container_name)
-}
-
 get_table <- function(
-  app_id = Sys.getenv("AZ_APP_ID"),
+  auth_token = azkit::get_auth_token(),
   table_ep = Sys.getenv("AZ_TABLE_EP"),
-  table_name = Sys.getenv("AZ_TABLE_NAME")
+  table_name = Sys.getenv("AZ_TABLE_NAME"),
+  filter_entities = "run_stage eq 'final_report_ndg2'",
+  select_properties = c(
+    "scenario",
+    "create_datetime",
+    "run_stage",
+    "app_version",
+    "sites_aae",
+    "sites_ip",
+    "sites_op"
+  )
 ) {
-  token <- if (app_id != "") {
-    AzureAuth::get_azure_token(
-      resource = "https://storage.azure.com",
-      tenant = "common",
-      app = app_id,
-      auth_type = "authorization_code",
-      use_cache = TRUE
-    )
-  } else {
-    AzureAuth::get_managed_token("https://storage.azure.com/")
-  }
-
-  # Make API call, AzureTableStor functions don't accept tokens
-  req <- httr2::request(glue::glue("{table_ep}{table_name}")) |>
-    httr2::req_auth_bearer_token(token$credentials$access_token) |>
-    httr2::req_headers(
-      `x-ms-version` = "2023-11-03",
-      Accept = "application/json;odata=nometadata"
-    )
-  resp <- httr2::req_perform(req)
-  entities <- httr2::resp_body_json(resp)
-
-  entities[[1]] |> # response is contained in a list
-    purrr::map(tibble::as_tibble) |>
-    purrr::list_rbind()
+  azkit::read_azure_table(
+    table_name = "modelruns",
+    token = auth_token,
+    filter = filter_entities,
+    select = paste(select_properties, collapse = ",")
+  )
 }
 
-get_scheme_lookup <- function(container_support) {
+get_scheme_lookup <- function(
+  container_support = azkit::get_container(Sys.getenv("AZ_CONTAINER_SUPPORT"))
+) {
   AzureStor::storage_read_csv(
     container_support,
     "nhp-scheme-lookup.csv",
