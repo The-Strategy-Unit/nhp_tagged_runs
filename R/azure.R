@@ -2,7 +2,7 @@ get_table <- function(
   auth_token = azkit::get_auth_token(),
   table_ep = Sys.getenv("AZ_TABLE_EP"),
   runs_table_name = Sys.getenv("AZ_TABLE_NAME"),
-  filter_entities = "run_stage eq 'final_report_ndg2'",
+  filter_entities = "run_stage ne ''", # i.e. run_stage must have a value
   select_properties = c(
     "dataset",
     "scenario",
