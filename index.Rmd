@@ -14,8 +14,7 @@ required_env_vars <- c(
   "AZ_CONTAINER_SUPPORT",
   "AZ_STORAGE_EP",
   "AZ_TABLE_EP",
-  "AZ_TABLE_NAME",
-  "NHP_ENCRYPT_KEY"
+  "AZ_TABLE_NAME"
 )
 
 if (any(Sys.getenv(required_env_vars) == "")) {

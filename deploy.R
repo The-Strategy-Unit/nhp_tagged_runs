@@ -8,8 +8,7 @@ rsconnect::deployDoc(
     "AZ_CONTAINER_SUPPORT",
     "AZ_STORAGE_EP",
     "AZ_TABLE_EP",
-    "AZ_TABLE_NAME",
-    "NHP_ENCRYPT_KEY"
+    "AZ_TABLE_NAME"
   ),
   lint = FALSE,
   forceUpdate = TRUE
