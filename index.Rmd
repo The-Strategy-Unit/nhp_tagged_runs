@@ -11,12 +11,10 @@ output: html_document
 #| message: false
 
 required_env_vars <- c(
-  "AZ_STORAGE_CONTAINER_SUPPORT",
+  "AZ_CONTAINER_SUPPORT",
   "AZ_STORAGE_EP",
   "AZ_TABLE_EP",
-  "AZ_TABLE_NAME",
-  "AZ_TENANT_ID",
-  "NHP_ENCRYPT_KEY"
+  "AZ_TABLE_NAME"
 )
 
 if (any(Sys.getenv(required_env_vars) == "")) {
@@ -36,12 +34,8 @@ source("R/wrangle.R")
 source("R/table.R")
 library(readr)
 
-scheme_lookup <- Sys.getenv("AZ_STORAGE_CONTAINER_SUPPORT") |>
-  get_container(container_name = _) |>
-  get_scheme_lookup()
-
-results_table <- get_table() |>
-  dplyr::rename(dataset = PartitionKey)
+scheme_lookup <- get_scheme_lookup()
+results_table <- get_table()
 ```
 
 ## Table
