@@ -24,14 +24,8 @@ get_table <- function(
   )
 }
 
-get_scheme_lookup <- function(
-  container_support = azkit::get_container(Sys.getenv("AZ_CONTAINER_SUPPORT"))
-) {
-  AzureStor::storage_read_csv(
-    container_support,
-    "nhp-scheme-lookup.csv",
-    show_col_types = FALSE
-  ) |>
+get_scheme_lookup <- function(path = "reference/nhp-scheme-lookup.csv") {
+  readr::read_csv(path, col_types = "c") |>
     dplyr::select(
       code = `Trust ODS Code`,
       scheme = `Name of Hospital site`,
