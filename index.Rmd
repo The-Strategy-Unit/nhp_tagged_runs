@@ -28,8 +28,7 @@ if (any(Sys.getenv(required_env_vars) == "")) {
 #| echo: false
 #| message: false
 
-source("R/azure.R")
-source("R/wrangle.R")
+source("R/data.R")
 source("R/table.R")
 library(readr)
 
