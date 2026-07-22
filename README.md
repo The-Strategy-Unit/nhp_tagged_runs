@@ -2,7 +2,8 @@
 
 ## About
 
-A table of scenario metadata for results files from the New Hospital Programme (NHP) demand model, along with schemes' site selections for those runs. Only includes scenarios that have a 'run stage' label ('final_report_ndg2', etc).
+A table of scenario metadata for results files from the New Hospital Programme (NHP) demand model, along with schemes' site selections for those runs.
+Only includes scenarios that have a 'run stage' label ('final_report_ndg2', etc).
 
 The report is [deployed to Connect](https://connect.strategyunitwm.nhs.uk/nhp/tagged_runs/) (login/permissions required) and updates on schedule.
 
@@ -17,9 +18,8 @@ Note that the app:
 
 ## Data
 
-Data is stored in a lookup in Azure Table Storage given by the environment variables `AZ_TABLE_NAME` and `AZ_TABLE_EP`.
-
-Developers: search for 'tagging-nhp-model-runs' in the NHP DS area of SharePoint for details on how to update the lookup.
+Scenario metadata is collected from a lookup in Azure Table Storage given by the environment variables `AZ_TABLE_NAME` and `AZ_TABLE_EP`.
+Supporting data is stored locally in `reference/`.
 
 ## Update the app manually
 
