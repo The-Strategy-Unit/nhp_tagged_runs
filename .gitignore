@@ -16,6 +16,9 @@
 *.svg
 *.tiff
 
+# But retain
+!reference/nhp-scheme-lookup.csv
+
 # History files
 .Rhistory
 .Rapp.history
